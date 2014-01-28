@@ -7,16 +7,23 @@
 //
 
 #import "SimpleAuthProvider.h"
+#import "SimpleAuthActivityIndicator.h"
+
+#import "NSObject+SimpleAuthAdditions.h"
 
 @interface SimpleAuthProvider ()
 
 @property (nonatomic, copy) NSDictionary *options;
+@property (nonatomic, readonly) SimpleAuthActivityIndicator *activityIndicator;
 
 @end
 
-@implementation SimpleAuthProvider
+@implementation SimpleAuthProvider {
+    NSInteger _activityCount;
+}
 
 @synthesize operationQueue = _operationQueue;
+@synthesize activityIndicator = _activityIndicator;
 
 #pragma mark - Public
 
@@ -45,12 +52,22 @@
 
 
 - (void)beginActivity {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _activityCount++;
+        if (_activityCount == 1) {
+            [self.activityIndicator showActivityIndicator];
+        }
+    });
 }
 
 
 - (void)endActivity {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _activityCount = MAX(_activityCount - 1, 0);
+        if (_activityCount == 0) {
+            [self.activityIndicator hideActivityIndicator];
+        }
+    });
 }
 
 
@@ -61,6 +78,33 @@
         _operationQueue = [NSOperationQueue new];
     }
     return _operationQueue;
+}
+
+
+- (SimpleAuthActivityIndicator *)activityIndicator {
+    if (!_activityIndicator) {
+        Class klass = [[self class] activityIndicatorClass];
+        if (klass == Nil) {
+            return nil;
+        }
+        _activityIndicator = [klass new];
+    }
+    return _activityIndicator;
+}
+
+
+#pragma mark - Private
+
++ (Class)activityIndicatorClass {
+    static dispatch_once_t token;
+    static Class klassOne;
+    dispatch_once(&token, ^{
+        [SimpleAuthActivityIndicator SimpleAuth_enumerateSubclassesWithBlock:^(Class klassTwo, BOOL *stop) {
+            klassOne = klassTwo;
+            *stop = YES;
+        }];
+    });
+    return klassOne;
 }
 
 @end
