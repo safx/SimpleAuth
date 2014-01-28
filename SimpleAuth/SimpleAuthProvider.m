@@ -44,6 +44,16 @@
 }
 
 
+- (void)beginActivity {
+    
+}
+
+
+- (void)endActivity {
+    
+}
+
+
 #pragma mark - Accessors
 
 - (NSOperationQueue *)operationQueue {
