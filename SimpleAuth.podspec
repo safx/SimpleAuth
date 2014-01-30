@@ -45,6 +45,13 @@ Pod::Spec.new do |s|
     ss.source_files = 'Providers/Instagram/**/*.{h,m}'
     ss.frameworks = 'UIKit'
   end
+
+  s.subspec 'IIJMio' do |ss|
+    ss.dependency 'SimpleAuth/Core'
+    
+    ss.source_files = 'Providers/IIJMio/**/*.{h,m}'
+    ss.frameworks = 'UIKit'
+  end
   
   s.subspec 'TwitterWeb' do |ss|
     ss.dependency 'SimpleAuth/Core'
@@ -84,4 +91,5 @@ Pod::Spec.new do |s|
     ss.source_files = 'Providers/DropboxWeb/**/*.{h,m}'
     ss.frameworks = 'UIKit'
   end
+
 end
