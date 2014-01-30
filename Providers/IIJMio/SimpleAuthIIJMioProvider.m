@@ -1,25 +1,25 @@
 //
-//  SimpleAuthInstagramProvider.m
-//  SimpleAuth
+//  SimpleAuthIIJMioProvider.m
+//  MioDashboard
 //
-//  Created by Caleb Davenport on 11/7/13.
-//  Copyright (c) 2013-2014 Byliner, Inc. All rights reserved.
+//  Created by Safx Developer on 2014/01/29.
+//  Copyright (c) 2014年 Safx Developers. All rights reserved.
 //
 
-#import "SimpleAuthInstagramProvider.h"
-#import "SimpleAuthInstagramLoginViewController.h"
+#import "SimpleAuthIIJMioProvider.h"
+#import "SimpleAuthIIJMioLoginViewController.h"
 
 #import "UIViewController+SimpleAuthAdditions.h"
 #import <ReactiveCocoa/ReactiveCocoa.h>
 
-@implementation SimpleAuthInstagramProvider
+
+@implementation SimpleAuthIIJMioProvider
 
 #pragma mark - SimpleAuthProvider
 
 + (NSString *)type {
-    return @"instagram";
+    return @"iijmio";
 }
-
 
 + (NSDictionary *)defaultOptions {
     
@@ -45,13 +45,10 @@
 
 - (void)authorizeWithCompletion:(SimpleAuthRequestHandler)completion {
     [[[self accessToken]
-     flattenMap:^RACStream *(NSString *response) {
-         NSArray *signals = @[
-             [self accountWithAccessToken:response],
-             [RACSignal return:response]
-         ];
-         return [self rac_liftSelector:@selector(dictionaryWithAccount:accessToken:) withSignalsFromArray:signals];
-     }]
+      flattenMap:^RACStream *(NSString *response) {
+          NSArray *signals = @[[RACSignal return:response]];
+          return [self rac_liftSelector:@selector(dictionaryWithAccessToken:) withSignalsFromArray:signals];
+      }]
      subscribeNext:^(NSDictionary *response) {
          completion(response, nil);
      }
@@ -66,7 +63,7 @@
 - (RACSignal *)accessToken {
     return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            SimpleAuthInstagramLoginViewController *login = [[SimpleAuthInstagramLoginViewController alloc] initWithOptions:self.options];
+            SimpleAuthIIJMioLoginViewController *login = [[SimpleAuthIIJMioLoginViewController alloc] initWithOptions:self.options];
             login.completion = ^(UIViewController *login, NSURL *URL, NSError *error) {
                 SimpleAuthInterfaceHandler dismissBlock = self.options[SimpleAuthDismissInterfaceBlockKey];
                 dismissBlock(login);
@@ -94,64 +91,16 @@
     }];
 }
 
-
-- (RACSignal *)accountWithAccessToken:(NSString *)accessToken {
-    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
-        NSDictionary *parameters = @{ @"access_token" : accessToken };
-        NSString *query = [CMDQueryStringSerialization queryStringWithDictionary:parameters];
-        NSString *URLString = [NSString stringWithFormat:@"https://api.instagram.com/v1/users/self?%@", query];
-        NSURL *URL = [NSURL URLWithString:URLString];
-        NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-        [NSURLConnection sendAsynchronousRequest:request queue:self.operationQueue
-         completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
-             NSIndexSet *indexSet = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(200, 99)];
-             NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-             if ([indexSet containsIndex:statusCode] && data) {
-                 NSError *parseError = nil;
-                 NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&parseError];
-                 if (dictionary) {
-                     [subscriber sendNext:dictionary];
-                     [subscriber sendCompleted];
-                 }
-                 else {
-                     [subscriber sendError:parseError];
-                 }
-             }
-             else {
-                 [subscriber sendError:connectionError];
-             }
-         }];
-        return nil;
-    }];
-}
-
-
 #pragma mark - Private
 
-- (NSDictionary *)dictionaryWithAccount:(NSDictionary *)account accessToken:(NSString *)accessToken {
+- (NSDictionary *)dictionaryWithAccessToken:(NSString *)accessToken {
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
-    NSDictionary *data = account[@"data"];
     
     // Provider
     dictionary[@"provider"] = [[self class] type];
     
     // Credentials
-    dictionary[@"credentials"] = @{
-        @"token" : accessToken
-    };
-    
-    // User ID
-    dictionary[@"uid"] = data[@"id"];
-    
-    // Raw response
-    dictionary[@"raw_info"] = account;
-    
-    // User info
-    NSMutableDictionary *user = [NSMutableDictionary new];
-    user[@"name"] = data[@"full_name"];
-    user[@"username"] = data[@"username"];
-    user[@"image"] = data[@"profile_picture"];
-    dictionary[@"user_info"] = user;
+    dictionary[@"credentials"] = @{@"token" : accessToken};
     
     return dictionary;
 }

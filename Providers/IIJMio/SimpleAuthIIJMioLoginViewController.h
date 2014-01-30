@@ -1,13 +1,13 @@
 //
-//  SimpleAuthInstagramLoginViewController.h
-//  SimpleAuth
+//  SimpleAuthIIJMioLoginWebViewController.h
+//  MioDashboard
 //
-//  Created by Caleb Davenport on 11/7/13.
-//  Copyright (c) 2013-2014 Byliner, Inc. All rights reserved.
+//  Created by Safx Developer on 2014/01/29.
+//  Copyright (c) 2014年 Safx Developers. All rights reserved.
 //
 
 #import "SimpleAuthWebViewController.h"
 
-@interface SimpleAuthInstagramLoginViewController : SimpleAuthWebViewController
+@interface SimpleAuthIIJMioLoginViewController : SimpleAuthWebViewController
 
 @end

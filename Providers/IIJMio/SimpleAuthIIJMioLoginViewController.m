@@ -1,20 +1,20 @@
 //
-//  SimpleAuthInstagramLoginViewController.m
-//  SimpleAuthInstagram
+//  SimpleAuthIIJMioLoginWebViewController.m
+//  MioDashboard
 //
-//  Created by Caleb Davenport on 11/7/13.
-//  Copyright (c) 2013-2014 Byliner, Inc. All rights reserved.
+//  Created by Safx Developer on 2014/01/29.
+//  Copyright (c) 2014年 Safx Developers. All rights reserved.
 //
 
-#import "SimpleAuthInstagramLoginViewController.h"
+#import "SimpleAuthIIJMioLoginViewController.h"
 
-@implementation SimpleAuthInstagramLoginViewController
+@implementation SimpleAuthIIJMioLoginViewController
 
 #pragma mark - SimpleAuthWebViewController
 
 - (instancetype)initWithOptions:(NSDictionary *)options requestToken:(NSDictionary *)requestToken {
     if ((self = [super initWithOptions:options requestToken:requestToken])) {
-        self.title = @"Instagram";
+        self.title = @"IIJMio";
     }
     return self;
 }
@@ -25,11 +25,11 @@
     parameters[@"client_id"] = self.options[@"client_id"];
     parameters[@"redirect_uri"] = self.options[SimpleAuthRedirectURIKey];
     parameters[@"response_type"] = @"token";
-    if (self.options[@"scope"]) {
-        parameters[@"scope"] = [self.options[@"scope"] componentsJoinedByString:@" "];
+    if (self.options[@"state"]) {
+        parameters[@"state"] = self.options[@"state"];
     }
     NSString *URLString = [NSString stringWithFormat:
-                           @"https://instagram.com/oauth/authorize/?%@",
+                           @"https://api.iijmio.jp/mobile/d/v1/authorization/?%@",
                            [CMDQueryStringSerialization queryStringWithDictionary:parameters]];
     NSURL *URL = [NSURL URLWithString:URLString];
     
